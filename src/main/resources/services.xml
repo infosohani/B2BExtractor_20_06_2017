@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
+	
+		
+	
+	<bean id="hierarchicalBusinessProcessingService" class="com.businessextractor.services.parser.HierarchicalBusinessProcessingService"
+		abstract="true" >
+		<property name="directoryDao" ref="directoryDao" />
+		<property name="businessDao" ref="businessDao" />
+		<property name="maxFetchDepth" ><value>${application.maxFetchDepth}</value></property>
+		<property name="emailObtainingService" ref="emailObtainingService" />
+                <property name="businessEmailDao" ref="businessEmailDao" />
+	</bean>
+	
+<!--	<bean id="dmozBusinessProcessingService" class="com.businessextractor.services.parser.dmoz.DMOZBusinessProcessingService" 
+		parent="hierarchicalBusinessProcessingService" />-->
+	
+	<bean id="yahooBusinessProcessingService" class="com.businessextractor.services.parser.yahoo.YahooBusinessProcessingService" 
+		parent="hierarchicalBusinessProcessingService" />
+	
+	<bean id="tpageBusinessProcessingService" class="com.businessextractor.services.parser.tpage.TPageBusinessProcessingService" 
+		parent="hierarchicalBusinessProcessingService" />
+	
+	<bean id="exportersBusinessProcessingService" class="com.businessextractor.services.parser.exporters.ExportersBusinessProcessingService" 
+		parent="hierarchicalBusinessProcessingService" />
+        
+        <bean id="yellowpagesBusinessProcessingService" class="com.businessextractor.services.parser.yellowpages.YellowpagesBusinessProcessingService" 
+		parent="hierarchicalBusinessProcessingService" />
+        
+         <bean id="YelpBusinessprocessingservice" class="com.businessextractor.services.parser.yelp.YelpBusinessprocessingservice" 
+		parent="hierarchicalBusinessProcessingService" />
+         
+          <bean id="newyellowpages" class="com.businessextractor.services.parser.newyellowpages.newyellowpages" 
+		parent="hierarchicalBusinessProcessingService" />
+       
+	
+	<!-- Auxiliary services for scraping email addresses from businesses in secondary database -->
+	<bean id="emailObtainingService" class="com.businessextractor.services.email.EmailObtainingService">
+		<property name="dataSource" ref="externalDataSource"/>
+	</bean>	
+	
+	<!-- Search facilities -->
+<!--	<bean id="searchEngine" class="com.businessextractor.services.search.SearchEngine" parent="hibernateDaoSupport" />-->
+
+	<bean id="searchEngine" class="com.businessextractor.services.search.SearchEngine">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+	<!-- business search engine -->
+	<bean id="businessSearchController" class="com.businessextractor.services.search.SearchController" >
+		<constructor-arg>
+			<list>
+				<value>com.businessextractor.entity.business.Business</value>
+			</list>
+		</constructor-arg>
+		<property name="searchEngine" ref="searchEngine" />
+	</bean>
+	
+	<!-- Business manipulation services and validators -->
+	<bean id="businessValidator" class="com.businessextractor.services.business.BusinessValidator" />
+	<bean id="businessManipulationService" class="com.businessextractor.services.business.BusinessManipulationService" >
+		<property name="businessDao" ref="businessDao" />
+		<property name="businessValidator" ref="businessValidator" />
+	</bean>
+	
+	<!-- Directory manipulation services and validators -->
+	<bean id="directoryValidator" class="com.businessextractor.services.directory.DirectoryValidator" />
+	<bean id="directoryManipulationService" class="com.businessextractor.services.directory.DirectoryManipulationService" >
+		<property name="directoryDao" ref="directoryDao" />
+		<property name="directoryValidator" ref="directoryValidator" />
+	</bean>
+        
+	<!-- Business Email manipulation services -->
+	<bean id="businessEmailService" class="com.businessextractor.services.businessEmail.BusinessEmailManipulationService" >
+		<property name="businessEmailDao" ref="businessEmailDao" />		
+	</bean>
+	
+</beans>

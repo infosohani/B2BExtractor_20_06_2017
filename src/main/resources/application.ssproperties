@@ -1,0 +1,72 @@
+# Database Configuration
+spring.datasource.url=jdbc:mysql://localhost:3306/businessextractor?characterEncoding=UTF-8&jdbcCompliantTruncation=true&useSSL=false
+spring.datasource.username=root
+spring.datasource.password=root@123s
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+# Hibernate Configuration
+spring.jpa.database-platform=org.hibernate.dialect.MySQL8Dialect
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.main.allow-bean-definition-overriding=true
+
+# Hibernate Search (Lucene)
+
+
+# Datasource properties for connecting to MySQL
+#datasource.application.url = jdbc:mysql://localhost:3306/businessextractor?characterEncoding=UTF-8&amp;jdbcCompliantTruncation=true&useSSL=false
+datasource.application.url = jdbc:mysql://localhost:3306/businessextractor?characterEncoding=UTF-8&jdbcCompliantTruncation=true&useSSL=false
+datasource.application.username = root
+datasource.application.password = root@123
+#datasource.application.password = ja
+#datasource.application.driver = com.mysql.jdbc.Driver
+datasource.application.driver = com.mysql.cj.jdbc.Driver
+
+datasource.application.initialSize=10
+datasource.application.maxActive = 4
+datasource.application.maxIdle = 4
+datasource.application.minIdle = 3
+datasource.application.maxWait = 3000
+
+#Datasource properties for connecting to MySQL
+#datasource.externalEmails.url = jdbc:mysql://216.116.104.9:3306/email?characterEncoding=UTF-8&amp;jdbcCompliantTruncation=true
+#datasource.externalEmails.username = smc0907
+#datasource.externalEmails.password = 7090cms
+#datasource.externalEmails.driver = com.mysql.jdbc.Driver
+#datasource.externalEmails.initialSize = 4
+#datasource.externalEmails.maxActive = 4
+#datasource.externalEmails.maxIdle = 4
+#datasource.externalEmails.minIdle = 3
+#datasource.externalEmails.maxWait = 3000
+
+#Datasource properties for connecting to Acces
+datasource.externalEmails.url =jdbc:odbc:Emails
+datasource.externalEmails.username =
+datasource.externalEmails.password =
+datasource.externalEmails.driver = sun.jdbc.odbc.JdbcOdbcDriver
+datasource.externalEmails.initialSize = 4
+datasource.externalEmails.maxActive = 10
+datasource.externalEmails.maxIdle = 5
+datasource.externalEmails.minIdle = 3
+datasource.externalEmails.maxWait = 3000
+
+#Hibernate specific parameters
+#hibernate.dialect=org.hibernate.dialect.MySQLDialect
+hibernate.dialect=org.hibernate.dialect.MySQLDialect
+
+hibernate.show_sql=true
+hibernate.bytecode.use_reflection_optimizer=false
+hibernate.hbm2ddl.auto=update
+hibernate.format_sql=true
+spring.jpa.properties.hibernate.use_sql_comments=true
+spring.jpa.properties.hibernate.type.descriptor.sql.BasicBinder.log=true
+
+hibernate.search.default.directory_provider=org.hibernate.search.store.filesystem
+# The path to the Lucene Index directory. This must be set to an existing directory on the client's file system
+#hibernate.search.default.indexBase=C:/Index
+hibernate.search.default.indexBase=/Users/sohani/Index
+hibernate.search.reader.strategy = simple
+
+# Application level parameters
+# This is the recursion depth of the business directory parsers. It is set do default 2
+application.maxFetchDepth = 2

@@ -1,0 +1,42 @@
+<hibernate-mapping>
+    <class name="com.businessextractor.entity.business.Business" table="business">
+        <meta attribute="hibernate.search.index">BusinessIndex</meta>
+        <id name="id" column="id">
+            <generator class="identity"/>
+        </id>
+
+        <property name="businessTitle" column="businessTitle" not-null="false">
+            <meta attribute="hibernate.search.field">true</meta>
+        </property>
+
+        <property name="businessDescription" column="businessDescription">
+            <meta attribute="hibernate.search.field">true</meta>
+        </property>
+
+        <property name="businessDomain" column="businessDomain"/>
+        <property name="businessEmail" column="businessEmail"/>
+        <property name="importDate" column="importDate"/>
+        <property name="contactFirstName" column="contactFirstName"/>
+        <property name="contactLastName" column="contactLastName"/>
+        <property name="contactEmail" column="contactEmail"/>
+        <property name="phone" column="phone"/>
+        <property name="fax" column="fax"/>
+        <property name="cellPhone" column="cellPhone"/>
+        <property name="address" column="address"/>
+        <property name="city" column="city"/>
+        <property name="state" column="state"/>
+        <property name="province" column="province"/>
+        <property name="country" column="country"/>
+        <property name="revisedDate" column="revisedDate"/>
+        <property name="sourceName" column="sourceName"/>
+        <property name="sourceUrl" column="sourceUrl"/>
+        <property name="zipCode" column="zipCode"/>
+        <property name="SICCode" column="SICCode"/>
+        <property name="SICDescription" column="SICDescription"/>
+
+        <many-to-one name="directory" class="com.businessextractor.entity.directory.Directory">
+            <column name="directory_id"/>
+        </many-to-one>
+
+    </class>
+</hibernate-mapping>

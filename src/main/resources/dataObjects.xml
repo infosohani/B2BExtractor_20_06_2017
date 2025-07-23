@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
+
+	<!-- Load properties -->
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="classpath:application.properties"/>
+	</bean>
+
+  <!-- The application's main pooled datasource to the MySQL database used for storing information -->
+  <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+    <property name="driverClassName">    <value>${datasource.application.driver}</value>  </property>
+    <property name="url">    <value>${datasource.application.url}</value> </property>
+    <property name="username">    <value>${datasource.application.username}</value>  </property>
+    <property name="password">    <value>${datasource.application.password}</value>  </property>
+    <property name="initialSize">    <value>${datasource.application.initialSize}</value>  </property>
+    <property name="maxActive">  <value>${datasource.application.maxActive}</value>  </property>
+    <property name="maxIdle">    <value>${datasource.application.maxIdle}</value>  </property>
+    <property name="minIdle"> <value>${datasource.application.minIdle}</value> </property>
+    <property name="maxWait"> <value>${datasource.application.maxWait}</value> </property>
+  </bean>
+
+  <bean id="externalDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+    <property name="driverClassName">    <value>${datasource.externalEmails.driver}</value>  </property>
+    <property name="url">    <value>${datasource.externalEmails.url}</value> </property>
+    <property name="username">    <value>${datasource.externalEmails.username}</value>  </property>
+    <property name="password">    <value>${datasource.externalEmails.password}</value>  </property>
+    <property name="initialSize">    <value>${datasource.externalEmails.initialSize}</value>  </property>
+    <property name="maxActive">  <value>${datasource.externalEmails.maxActive}</value>  </property>
+    <property name="maxIdle">    <value>${datasource.externalEmails.maxIdle}</value>  </property>
+    <property name="minIdle"> <value>${datasource.externalEmails.minIdle}</value> </property>
+    <property name="maxWait"> <value>${datasource.externalEmails.maxWait}</value> </property>
+  </bean>
+
+	<!-- ========================================================= -->
+	<!-- ================ Hibernate SessionFactory =============== -->
+	<!-- ========================================================= -->
+	<bean id="sessionFactory"
+		  class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"/>
+		<property name="packagesToScan" value="com.businessextractor.entity" />
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">${hibernate.dialect}</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.format_sql">true</prop>
+				<prop key="hibernate.bytecode.use_reflection_optimizer">${hibernate.bytecode.use_reflection_optimizer}</prop>
+<!--				<prop key="hibernate.search.default.directory_provider">${hibernate.search.default.directory_provider}</prop>-->
+<!--				<prop key="hibernate.search.default.indexBase">${hibernate.search.default.indexBase}</prop>-->
+				<prop key="hibernate.search.default.directory_provider">filesystem</prop>
+				<prop key="hibernate.search.default.indexBase">/Users/sohani/Index</prop>
+				<prop key="hibernate.search.default.lucene_version">LUCENE_CURRENT</prop>
+				<prop key="hibernate.search.default.indexmanager">near-real-time</prop>
+<!--				<prop key="hibernate.search.reader.strategy">${hibernate.search.reader.strategy}</prop>-->
+			</props>
+		</property>
+		<!-- Add your mapping files here -->
+		<property name="mappingLocations">
+			<list>
+				<value>classpath:/Directory.hbm.xml</value>
+				<value>classpath:/Business.hbm.xml</value>
+			</list>
+		</property>
+		<property name="annotatedClasses">
+			<list>
+				<value>com.businessextractor.entity.websiteroot.WebsiteRoot</value>
+				<value>com.businessextractor.entity.business.Business</value>
+				<value>com.businessextractor.entity.directory.Directory</value>
+				<value>com.businessextractor.entity.businessemail.BusinessEmail</value>
+			</list>
+		</property>
+
+	</bean>
+
+	<!-- DAO declarations -->
+
+<!--	<bean id="hibernateDaoSupport" class="org.springframework.orm.hibernate5.support.HibernateDaoSupport">-->
+<!--		<property name="sessionFactory" ref="sessionFactory" />-->
+<!--	</bean>-->
+
+	<bean id="websiteRootDao" class="com.businessextractor.entity.websiteroot.WebsiteRootDaoImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+
+
+	<bean id="businessDao" class="com.businessextractor.entity.business.BusinessDaoImpl">
+		<property name="sessionFactory" ref="sessionFactory" />
+
+	</bean>
+	<bean id="directoryDao" class="com.businessextractor.entity.directory.DirectoryDaoImpl">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	<bean id="businessEmailDao" class="com.businessextractor.entity.businessemail.BusinessEmailDaoImpl">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+
+	<!--	<bean id="websiteRootDao" class="com.businessextractor.entity.websiteroot.WebsiteRootDaoImpl" parent="hibernateDaoSupport" />-->
+<!--	<bean id="businessDao" class="com.businessextractor.entity.business.BusinessDaoImpl" parent="hibernateDaoSupport" />-->
+<!--	<bean id="directoryDao" class="com.businessextractor.entity.directory.DirectoryDaoImpl" parent="hibernateDaoSupport" />-->
+<!--	<bean id="businessEmailDao" class="com.businessextractor.entity.businessemail.BusinessEmailDaoImpl" parent="hibernateDaoSupport" />-->
+
+	<!-- Hibernate Transaction manager -->
+    <bean id="hibernateTransactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory" />
+    </bean>
+
+	<tx:annotation-driven transaction-manager="hibernateTransactionManager"/>
+
+
+</beans>

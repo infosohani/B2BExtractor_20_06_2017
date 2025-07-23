@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:aop="http://www.springframework.org/schema/aop"
+	   xmlns:tx="http://www.springframework.org/schema/tx"
+	   xsi:schemaLocation="
+       http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/tx https://www.springframework.org/schema/tx/spring-tx.xsd
+       http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd">
+
+	<!-- MySQL Database DataSource -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<property name="driverClassName" value="${datasource.application.driver}" />
+		<property name="url" value="${datasource.application.url}" />
+		<property name="username" value="${datasource.application.username}" />
+		<property name="password" value="${datasource.application.password}" />
+		<property name="initialSize" value="${datasource.application.initialSize}" />
+		<property name="maxActive" value="${datasource.application.maxActive}" />
+		<property name="maxIdle" value="${datasource.application.maxIdle}" />
+		<property name="minIdle" value="${datasource.application.minIdle}" />
+		<property name="maxWait" value="${datasource.application.maxWait}" />
+	</bean>
+
+	<!-- External Email Database DataSource -->
+	<bean id="externalDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<property name="driverClassName" value="${datasource.externalEmails.driver}" />
+		<property name="url" value="${datasource.externalEmails.url}" />
+		<property name="username" value="${datasource.externalEmails.username}" />
+		<property name="password" value="${datasource.externalEmails.password}" />
+		<property name="initialSize" value="${datasource.externalEmails.initialSize}" />
+		<property name="maxActive" value="${datasource.externalEmails.maxActive}" />
+		<property name="maxIdle" value="${datasource.externalEmails.maxIdle}" />
+		<property name="minIdle" value="${datasource.externalEmails.minIdle}" />
+		<property name="maxWait" value="${datasource.externalEmails.maxWait}" />
+	</bean>
+
+	<!-- Hibernate SessionFactory -->
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+		<property name="dataSource">
+			<ref bean="dataSource" /> <!-- Fixed the 'ref' tag -->
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">${hibernate.dialect}</prop>
+				<prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+				<prop key="hibernate.bytecode.use_reflection_optimizer">${hibernate.bytecode.use_reflection_optimizer}</prop>
+				<prop key="hibernate.search.default.directory_provider">${hibernate.search.default.directory_provider}</prop>
+				<prop key="hibernate.search.default.indexBase">${hibernate.search.default.indexBase}</prop>
+				<prop key="hibernate.search.reader.strategy">${hibernate.search.reader.strategy}</prop>
+			</props>
+		</property>
+		<property name="annotatedClasses">
+			<list>
+				<value>com.businessextractor.entity.websiteroot.WebsiteRoot</value>
+				<value>com.businessextractor.entity.business.Business</value>
+				<value>com.businessextractor.entity.directory.Directory</value>
+				<value>com.businessextractor.entity.businessemail.BusinessEmail</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- Hibernate DAO Support -->
+	<bean id="hibernateDaoSupport" class="org.springframework.orm.hibernate3.support.HibernateDaoSupport" abstract="true">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<!-- DAO Implementations -->
+	<bean id="websiteRootDao" class="com.businessextractor.entity.websiteroot.WebsiteRootDaoImpl" parent="hibernateDaoSupport" />
+	<bean id="businessDao" class="com.businessextractor.entity.business.BusinessDaoImpl" parent="hibernateDaoSupport" />
+	<bean id="directoryDao" class="com.businessextractor.entity.directory.DirectoryDaoImpl" parent="hibernateDaoSupport" />
+	<bean id="businessEmailDao" class="com.businessextractor.entity.businessemail.BusinessEmailDaoImpl" parent="hibernateDaoSupport" />
+
+	<!-- Hibernate Transaction Manager -->
+	<bean id="hibernateTransactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<tx:annotation-driven transaction-manager="hibernateTransactionManager" />
+
+</beans>
