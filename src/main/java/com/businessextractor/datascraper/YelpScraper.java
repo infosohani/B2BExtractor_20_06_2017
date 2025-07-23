@@ -23,59 +23,6 @@ public class YelpScraper {
     private static final String API_KEY = "aecd1fa07831dde32218b1ed8fb9ccd5d143c954";
     private static final String BASE_URL = "https://www.yelp.com";
 
-
-//    public List<Business> getData(String url) throws IOException {
-//
-//
-//        String jsonResponse = fetchPageContent(url);
-//
-//        if (jsonResponse == null) {
-//            System.out.println("❌ Failed to fetch search page");
-//            return null;
-//        }
-//
-//        Document doc = Jsoup.parse(jsonResponse);
-//        Elements ulElement = doc.select("ul.list__09f24__ynIEd");
-//        List<String> businessUrls = new ArrayList<>();
-//
-//        if (!ulElement.isEmpty()) {
-//            Elements listItems = ulElement.select("li");
-//            List<Integer> matchIndexes = new ArrayList<>();
-//
-//            for (int i = 0; i < listItems.size(); i++) {
-//                Element divElement = listItems.get(i).selectFirst("div.y-css-vwfr3f");
-//                if (divElement != null) {
-//                    matchIndexes.add(i);
-//                }
-//            }
-//
-//            if (matchIndexes.size() >= 2) {
-//                int startIndex = matchIndexes.get(1);
-//                int validCount = 0;
-//
-//                for (int i = startIndex + 1; i < listItems.size(); i++) {
-//                    Element businessDiv = listItems.get(i).selectFirst("div.businessName__09f24__HG_pC");
-//                    if (businessDiv != null) {
-//                        Element nameTag = businessDiv.selectFirst("a");
-//                        if (nameTag != null) {
-//                            String businessLink = BASE_URL + nameTag.attr("href");
-//                            businessUrls.add(businessLink);
-//                            validCount++;
-//                        }
-//                    }
-//                    if (validCount >= 1) break;
-//                }
-//                for (String bizUrl : businessUrls) {
-//                    Business business = fetchBusinessDetails(bizUrl);
-//                    businesses.add(business);
-//                }
-//            }
-//        } else {
-//            System.out.println("❌ <ul> with class 'list__09f24__ynIEd' not found.");
-//        }
-//        return businesses;
-//    }
-
     public List<Business> findAllData(String bizUrl) throws IOException {
         List<Business> businesses = new ArrayList<>();
         String jsonResponse = fetchPageContent(bizUrl);
@@ -99,7 +46,7 @@ public class YelpScraper {
             boolean startCollecting = false;
             int co = 1;
             for (Element li : allLi) {
-                if (startCollecting && resultList.size() < 10) {
+                if (startCollecting && resultList.size() < 2) {
                     resultList.add(li);
                 }
                 if (li.equals(parentLi)) {
