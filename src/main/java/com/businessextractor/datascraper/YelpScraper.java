@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 
 public class YelpScraper {
     private static final String API_URL = "https://api.zenrows.com/v1/";
-    private static final String API_KEY = "aecd1fa07831dde32218b1ed8fb9ccd5d143c954";
+    private static final String API_KEY = "63edcc7b4005b0f7108fad65d7c5863bbc4c6171";
     private static final String BASE_URL = "https://www.yelp.com";
 
     public List<Business> findAllData(String bizUrl) throws IOException {
@@ -46,7 +46,7 @@ public class YelpScraper {
             boolean startCollecting = false;
             int co = 1;
             for (Element li : allLi) {
-                if (startCollecting && resultList.size() < 2) {
+                if (startCollecting && resultList.size() < 10) {
                     resultList.add(li);
                 }
                 if (li.equals(parentLi)) {
@@ -88,6 +88,19 @@ public class YelpScraper {
 
         Document bizDoc = Jsoup.parse(jsonResponse);
 
+        Element aboutSection = bizDoc.selectFirst("section.y-css-15jz5c7[aria-label='About the Business']");
+        String businessDescription = "";
+        if (aboutSection != null) {
+            Elements infoDivs = aboutSection.select("div.y-css-9nkozu");
+
+            for (Element infoDiv : infoDivs) {
+                businessDescription = infoDiv.text();
+                System.out.println("🔹 " + businessDescription);
+            }
+        } else {
+            System.out.println("❌ 'About the Business' section not found.");
+        }
+
         String fullAddress = "";
         Element addressElement = bizDoc.selectFirst("address");
         if (addressElement != null) {
@@ -97,29 +110,32 @@ public class YelpScraper {
             System.out.println("⚠️ Address not found");
         }
 
-        // Select the table containing hours
         Elements hourTables = bizDoc.select("table.hours-table__09f24__KR8wh");
         StringBuilder workingHoursString = new StringBuilder();
+        List<String> workingHoursList = new ArrayList<>();
+
         for (Element table : hourTables) {
-            Elements uls = table.select("ul.list__09f24__ynIEd");
+            Elements rows = table.select("tr.y-css-29kerx"); // Select each valid row
 
-            List<String> workingHoursList = new ArrayList<>();
+            for (Element row : rows) {
+                Element dayElement = row.selectFirst("th > p.day-of-the-week__09f24__JJea_");
+                if (dayElement == null) continue; // Skip if day not found
 
-            for (Element ul : uls) {
-                // You can also extract the weekday label if present
-                Elements lis = ul.select("li");
+                String day = dayElement.text(); // e.g., "Mon"
 
-                for (Element li : lis) {
-                    Elements timeParagraphs = li.select("p");
+                // Get time info from first <td>
+                Element timeCell = row.selectFirst("td ul li p");
+                String time = timeCell != null ? timeCell.text() : "Closed";
 
-                    for (Element p : timeParagraphs) {
-                        String timeRange = p.text();
-                        System.out.println(timeRange);
-                        String time = p.text();
-                        workingHoursList.add(time);
-                        workingHoursString.append(time).append("\n");
-                    }
+                // Optional: Check for "Closed now" status
+                Element statusCell = row.selectFirst("td span.open-status__09f24__YH9PK");
+                if (statusCell != null && statusCell.text().equalsIgnoreCase("Closed now")) {
+                    time += " Closed now";
                 }
+
+                String fullText = day + " " + time;
+                workingHoursList.add(fullText);
+                workingHoursString.append(fullText).append("\n");
             }
         }
 
@@ -188,7 +204,7 @@ public class YelpScraper {
         }
 
         business.setBusinessTitle(businessName);
-        business.setBusinessDescription(businessName);
+        business.setBusinessDescription(businessDescription);
         business.setBusinessDomain(website);
         business.setPhone(phoneNumber);
         business.setOpenCloseHours(openCloseHours);
